@@ -11,7 +11,7 @@ This roadmap outlines my personal learning path from IT Help Desk to Cybersecuri
 
 ---
 
-## ⏳ Phase 2: Security Launch (3–6 Months | 2025)
+## ⏳ Phase 2: Foundational Security (3–6 Months | 2025)
 - [ ] **CompTIA Security+** – Core security concepts (DoD 8570 baseline)
 - [ ] **TryHackMe: Pre-Security Path** – Documented rooms and challenges
 - [ ] **Linux+** *(optional)* – Intermediate CLI/sysadmin skills
@@ -25,7 +25,7 @@ This roadmap outlines my personal learning path from IT Help Desk to Cybersecuri
 
 ---
 
-## ⏳ Phase 4: Blue Team Development (12–18 Months | 2026)
+## ⏳ Phase 4: Blue Team (12–18 Months | 2026)
 - [ ] **Blue Team Level 1** – Hands-on SOC analyst fundamentals
 - [ ] **SIEM Tools** – Splunk, Elastic Stack, Zeek, Wireshark
 - [ ] **MITRE ATT&CK + Detection Engineering** – Sigma rules, log triage
@@ -33,7 +33,7 @@ This roadmap outlines my personal learning path from IT Help Desk to Cybersecuri
 
 ---
 
-## 🔴 Phase 5: Red Team Launch (18–30 Months | 2027)
+## 🔴 Phase 5: Red Team (18–30 Months | 2027)
 - [ ] **eJPT** – Network exploitation, scanning, pivoting
 - [ ] **PNPT** – Internal engagement + report writing
 - [ ] **OSCP** *(optional)* – Offensive pentest certification
