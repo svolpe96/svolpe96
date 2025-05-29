@@ -11,7 +11,7 @@ This roadmap outlines my personal learning path from IT Help Desk to Cybersecuri
 
 ---
 
-## ⏳ Phase 2: Foundational Security (3–6 Months | 2025)
+## ⏳ Phase 2: Developing Security (3–6 Months | 2025)
 - [ ] **CompTIA Security+** – Core security concepts (DoD 8570 baseline)
 - [ ] **TryHackMe: Pre-Security Path** – Documented rooms and challenges
 - [ ] **Linux+** *(optional)* – Intermediate CLI/sysadmin skills
