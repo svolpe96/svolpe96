@@ -5,8 +5,8 @@ This roadmap outlines my personal learning path from IT Help Desk to Cybersecuri
 ---
 
 ## ✅ Phase 1: Foundation (0–3 Months | 2025)
-- [x] **CCNA** *(in progress)* – VLANs, STP, ACLs, NAT, subnetting
-- [x] **Linux Basics** – File systems, CLI, networking tools
+- [ ] **CCNA** *(in progress)* – VLANs, STP, ACLs, NAT, subnetting
+- [ ] **Linux Basics** – File systems, CLI, networking tools
 - [x] **GitHub Setup** – Repo to track progress and showcase labs
 
 ---
