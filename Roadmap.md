@@ -14,13 +14,12 @@ This roadmap outlines my personal learning path from IT Help Desk to Cybersecuri
 ## ⏳ Phase 2: Developing Security (3–6 Months | 2025)
 - [ ] **CompTIA Security+** – Core security concepts (DoD 8570 baseline)
 - [ ] **TryHackMe: Pre-Security Path** – Documented rooms and challenges
-- [ ] **Linux+** *(optional)* – Intermediate CLI/sysadmin skills
+- [ ] **Linux+** Intermediate CLI/sysadmin skills
 
 ---
 
 ## ⏳ Phase 3: Network Security Focus (6–12 Months | 2025–2026)
 - [ ] **CCNP Security** – Secure access, VPNs, Firewalls, AAA, ZBF
-- [ ] **Fortinet NSE 4** *(optional)* – FortiGate firewall administration
 - [ ] **Firewall/VPN Labs** – Cisco ASA & Firepower hands-on practice
 
 ---
@@ -30,7 +29,7 @@ This roadmap outlines my personal learning path from IT Help Desk to Cybersecuri
 - [ ] **SIEM Tools** – Splunk, Elastic Stack, Zeek, Wireshark
 - [ ] **MITRE ATT&CK + Detection Engineering** – Sigma rules, log triage
 - [ ] **Detection Labs** – PCAP analysis, alert tuning, attack correlation
-
+- [ ] **Blue Team Level 2** – ???
 ---
 
 ## 🔴 Phase 5: Red Team (18–30 Months | 2027)
