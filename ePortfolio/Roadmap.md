@@ -43,6 +43,5 @@ This roadmap outlines my personal learning path from IT Help Desk to Cybersecuri
 
 ## 📁 Supporting Work
 - ✅ Track labs and tool usage in dedicated folders
-- ✅ Document TryHackMe/HTB writeups
-- ✅ Include screenshots, configs, scripts in relevant subfolders
+
 
