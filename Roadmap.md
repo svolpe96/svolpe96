@@ -39,18 +39,6 @@ This roadmap outlines my personal learning path from IT Help Desk to Cybersecuri
 - [ ] **Tools Mastery** – Nmap, Burp Suite, BloodHound, Metasploit
 - [ ] **Scripting** – Python, Bash, PowerShell automation
 - [ ] **Active Directory Labs** – AD attack/defense practice
-
----
-
-## 🧠 Final Phase: Red & Purple Team Maturity (30+ Months)
-- [ ] **Purple Teaming** – Simulate & defend attacks (Atomic Red Team)
-- [ ] **Advanced Certs** – CRTO, GPEN, GCPN (based on role needs)
-- [ ] **Career Targets**:
-  - Red Team Operator  
-  - Threat Hunter  
-  - Adversary Emulation Engineer  
-  - Senior Penetration Tester  
-
 ---
 
 ## 📁 Supporting Work
