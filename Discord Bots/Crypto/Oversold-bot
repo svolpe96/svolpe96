@@ -1,0 +1,173 @@
+import os
+import asyncio
+import logging
+from datetime import datetime, timezone
+
+import ccxt
+import pandas as pd
+import numpy as np
+import pandas_ta as ta
+
+from discord.ext import commands
+from discord import Embed, Colour
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
+from pycoingecko import CoinGeckoAPI
+
+# ----------------- Setup -----------------
+DISCORD_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+CHANNEL_ID = int(os.getenv("DISCORD_CHANNEL_ID", "0"))
+COIN_LIMIT = int(os.getenv("COIN_LIMIT", "200"))
+SCAN_UTC_HOUR = int(os.getenv("SCAN_UTC_HOUR", "13"))
+
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger("oversold-bot")
+
+intents = commands.Intents.default()
+bot = commands.Bot(command_prefix="!", intents=intents)
+
+cg = CoinGeckoAPI()
+binance = ccxt.binance({
+    "options": {"defaultType": "spot"},
+    "enableRateLimit": True
+})
+
+BINANCE_MARKETS = None  # cache
+
+# ----------------- Helpers -----------------
+async def get_top_coins(limit: int = 200):
+    """Top N coins by market cap from CoinGecko."""
+    data = cg.get_coins_markets(
+        vs_currency="usd",
+        order="market_cap_desc",
+        per_page=min(limit, 250),
+        page=1
+    )
+    return data[:limit]
+
+def load_binance_markets():
+    global BINANCE_MARKETS
+    if BINANCE_MARKETS is None:
+        BINANCE_MARKETS = binance.load_markets()
+    return BINANCE_MARKETS
+
+def coingecko_to_binance_symbol(coin_id: str, coin_symbol: str) -> str | None:
+    """Map CoinGecko coin → Binance USDT pair."""
+    try:
+        tickers = cg.get_coin_tickers(coin_id).get("tickers", [])
+        for t in tickers:
+            ex = t.get("market", {}).get("name", "")
+            base = t.get("base")
+            target = t.get("target")
+            if ex and "binance" in ex.lower() and target == "USDT":
+                candidate = f"{base}/USDT"
+                if candidate in load_binance_markets():
+                    return candidate
+    except Exception:
+        pass
+
+    # fallback
+    candidate = f"{coin_symbol.upper()}/USDT"
+    return candidate if candidate in load_binance_markets() else None
+
+def fetch_daily(symbol: str, limit: int = 120):
+    """Fetch daily candles from Binance via CCXT."""
+    try:
+        ohlcv = binance.fetch_ohlcv(symbol, timeframe="1d", limit=limit)
+        if not ohlcv:
+            return None
+        df = pd.DataFrame(ohlcv, columns=["ts","open","high","low","close","volume"])
+        df["time"] = pd.to_datetime(df["ts"], unit="ms", utc=True)
+        return df
+    except Exception as e:
+        log.debug(f"fetch_daily error for {symbol}: {e}")
+        return None
+
+def calc_rsi(df: pd.DataFrame, length: int = 14) -> float | None:
+    """Return last RSI value."""
+    if df is None or df.shape[0] < length + 5:
+        return None
+    rsi = ta.rsi(df["close"], length=length)
+    val = rsi.iloc[-1]
+    return None if np.isnan(val) else float(val)
+
+def build_embed(rows: list[dict]) -> Embed:
+    title = f"Oversold (RSI-14 < 30) — {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
+    em = Embed(title=title, colour=Colour.blue())
+
+    if not rows:
+        em.description = "No assets met oversold criteria today."
+        return em
+
+    rows = sorted(rows, key=lambda x: x["rsi"])
+    lines = [f"**{r['symbol']}** — RSI {r['rsi']:.1f} — Binance: `{r['binance']}`" for r in rows]
+
+    em.description = "\n".join(lines)[:3900]  # discord limit safety
+    em.set_footer(text="RSI-14 daily close. Source: CoinGecko + Binance")
+    return em
+
+async def scan(limit: int = 200):
+    coins = await asyncio.to_thread(get_top_coins, limit)
+    load_binance_markets()
+
+    oversold = []
+    for c in coins:
+        cg_id = c["id"]
+        cg_symbol = c["symbol"]
+        binance_symbol = coingecko_to_binance_symbol(cg_id, cg_symbol)
+        if not binance_symbol:
+            continue
+
+        df = fetch_daily(binance_symbol)
+        rsi = calc_rsi(df)
+        if rsi is None:
+            continue
+
+        if rsi < 30:
+            oversold.append({
+                "id": cg_id,
+                "symbol": cg_symbol.upper(),
+                "binance": binance_symbol,
+                "rsi": rsi
+            })
+
+        await asyncio.sleep(0.12)  # API friendly
+
+    return oversold
+
+async def post_report(channel_id: int, limit: int):
+    channel = bot.get_channel(channel_id)
+    if not channel:
+        log.error("Channel not found — check DISCORD_CHANNEL_ID.")
+        return
+
+    await channel.send("📊 Scanning for oversold assets…")
+    rows = await scan(limit)
+    embed = build_embed(rows)
+    await channel.send(embed=embed)
+
+# ----------------- Commands -----------------
+@bot.command(name="oversold")
+async def oversold_cmd(ctx, n: int = COIN_LIMIT):
+    """Manual trigger: !oversold [N]"""
+    await post_report(ctx.channel.id, n)
+
+# ----------------- Scheduler -----------------
+@bot.event
+async def on_ready():
+    log.info(f"✅ Logged in as {bot.user} (ID: {bot.user.id})")
+    if CHANNEL_ID == 0:
+        log.error("❌ DISCORD_CHANNEL_ID missing.")
+        return
+
+    scheduler = AsyncIOScheduler(timezone="UTC")
+    scheduler.add_job(lambda: asyncio.create_task(post_report(CHANNEL_ID, COIN_LIMIT)),
+                      CronTrigger(hour=SCAN_UTC_HOUR, minute=0))
+    scheduler.start()
+    log.info(f"⏰ Daily scan scheduled at {SCAN_UTC_HOUR:02d}:00 UTC")
+
+# ----------------- Run -----------------
+if __name__ == "__main__":
+    if not DISCORD_TOKEN:
+        raise SystemExit("Missing DISCORD_BOT_TOKEN")
+    bot.run(DISCORD_TOKEN)
